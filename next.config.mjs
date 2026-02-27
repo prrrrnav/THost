@@ -1,11 +1,10 @@
-/** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',          // ⭐ VERY IMPORTANT
-  images: {
-    unoptimized: true,       // Required for GitHub Pages
-  },
-  basePath: "/THost", // IMPORTANT
+  output: "export",
+  basePath: "/THost",
   assetPrefix: "/THost/",
+  images: {
+    unoptimized: true,
+  },
 };
 
-module.exports = nextConfig;
+export default nextConfig;
