@@ -6,7 +6,7 @@ import './globals.css'
 const roboto = Roboto({ subsets: ['latin'], weight: ['300', '400', '500', '700'], variable: '--font-roboto' })
 
 export const metadata: Metadata = {
-  title: 'TheHost - PG Management System',
+  title: 'THost - P M S',
   description: 'Modern PG management platform for owners, admins, and tenants in India.',
 }
 
