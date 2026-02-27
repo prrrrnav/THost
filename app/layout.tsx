@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Roboto } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
+import { Toaster } from "@/components/ui/toaster" // 1. Import the Toaster
 
 const roboto = Roboto({ subsets: ['latin'], weight: ['300', '400', '500', '700'], variable: '--font-roboto' })
 
@@ -26,6 +27,7 @@ export default function RootLayout({
       <body className={`${roboto.variable} font-sans antialiased`}>
      
         {children}
+        <Toaster />
         <Analytics />
       </body>
     </html>
