@@ -21,7 +21,7 @@ export default async function TenantDashboard() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect("/login")
 
-  // 2. Fetch the tenant's profile data
+  // 2. Fetch the tenant's profile data linked to their email
   const { data: tenant } = await supabase
     .from("tenants")
     .select("*")
@@ -32,8 +32,11 @@ export default async function TenantDashboard() {
   const { data: dbPayments } = await supabase
     .from("payments")
     .select("*")
-    .eq("tenant_email", user?.email)
+    .eq("tenant_email", user.email)
     .order("created_at", { ascending: false })
+
+    console.log("DATABASE RESPONSE:", dbPayments)
+if (error) console.error("SUPABASE ERROR:", error)
 
   // 4. Map database values to UI stats
   const tenantStats = [
@@ -113,53 +116,59 @@ export default async function TenantDashboard() {
       </div>
 
       {/* Dynamic Payment History Table */}
-      <Card className="border-white/10 bg-zinc-950/50 backdrop-blur-xl animate-in fade-in slide-in-from-bottom-8 duration-700">
-        <CardHeader>
-          <CardTitle className="text-xl font-bold text-zinc-100">Payment History</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow className="border-white/10 hover:bg-transparent">
-                <TableHead className="text-zinc-400">Month</TableHead>
-                <TableHead className="text-zinc-400">Amount</TableHead>
-                <TableHead className="text-zinc-400">Status</TableHead>
-                <TableHead className="text-right text-zinc-400">Action</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {dbPayments && dbPayments.length > 0 ? (
-                dbPayments.map((payment) => (
-                  <TableRow key={payment.id} className="border-white/5 hover:bg-white/5">
-                    <TableCell className="font-medium text-zinc-200">{payment.month}</TableCell>
-                    <TableCell className="text-zinc-300">{formatCurrency(payment.amount)}</TableCell>
-                    <TableCell>
-                      <Badge className={
-                        payment.status === "Paid" 
-                        ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" 
-                        : "bg-amber-500/10 text-amber-400 border-amber-500/20"
-                      }>
-                        {payment.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="ghost" size="sm" className="text-zinc-400 hover:text-emerald-400">
-                        <Download className="h-4 w-4" />
-                      </Button>
+      <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 fill-mode-both">
+        <Card className="relative overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/50 backdrop-blur-xl shadow-2xl">
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent" />
+          
+          <CardHeader className="border-b border-white/5 pb-4">
+            <CardTitle className="text-lg font-bold tracking-tight text-zinc-100">
+              Payment History
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader className="bg-black/20">
+                <TableRow className="border-white/5 hover:bg-transparent">
+                  <TableHead className="pl-6 h-11 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Month</TableHead>
+                  <TableHead className="h-11 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Amount</TableHead>
+                  <TableHead className="h-11 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Status</TableHead>
+                  <TableHead className="pr-6 h-11 text-right text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Action</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {dbPayments && dbPayments.length > 0 ? (
+                  dbPayments.map((payment) => (
+                    <TableRow key={payment.id} className="border-white/5 transition-colors hover:bg-white/[0.02]">
+                      <TableCell className="pl-6 font-medium text-zinc-200">{payment.month}</TableCell>
+                      <TableCell className="font-medium text-zinc-300">{formatCurrency(payment.amount)}</TableCell>
+                      <TableCell>
+                        <Badge className={
+                          payment.status === "Paid" 
+                          ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" 
+                          : "bg-amber-500/10 text-amber-400 border-amber-500/20"
+                        }>
+                          {payment.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="pr-6 text-right">
+                        <Button variant="ghost" size="sm" className="h-8 gap-2 text-zinc-400 hover:bg-emerald-500/10 hover:text-emerald-400 transition-colors">
+                          <Download className="h-3.5 w-3.5" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={4} className="h-24 text-center text-zinc-500">
+                      No payment records found.
                     </TableCell>
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={4} className="h-24 text-center text-zinc-500">
-                    No payment records found.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }
