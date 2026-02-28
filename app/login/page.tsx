@@ -157,9 +157,9 @@ export default function LoginPage() {
       setLoading(false)
     } else if (result?.success && result.redirectTo) {
       toast({ 
-        title: "Welcome back! 🚀", 
+        title: "Welcome back!", 
         description: "Redirecting to your dashboard...",
-        className: "bg-indigo-600 text-white border-none" 
+        className: "bg-green-600 text-white border-none" 
       })
       router.push(result.redirectTo)
     }
