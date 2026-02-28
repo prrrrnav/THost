@@ -2,8 +2,12 @@ import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Users, ShieldCheck, Mail, MapPin } from "lucide-react"
+import { Users, ShieldCheck, Mail, Phone, Building2, Trash2, MapPin } from "lucide-react"
 import { RoleSwitcher } from "@/components/role-switcher"
+import { Button } from "@/components/ui/button"
+import { AddOwnerDialog } from "@/components/add-owner-dialog"
+import { EditOwnerDialog } from "@/components/edit-owner-dialog" 
+import { deletePGOwner } from "@/app/actions/superadmin"
 import {
     Table,
     TableBody,
@@ -26,18 +30,17 @@ export default async function OwnersDirectory() {
         .eq("id", user.id)
         .single()
 
-       
+    if (adminProfile?.role !== "superadmin") {
+        redirect("/tenant")
+    }
 
-    // 2. Fetch PG Owners (Admins)
-    const { data: owners } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("role", "admin")
-        .order("created_at", { ascending: false })
+    // 2. Fetch data from the pg_owners table discovered in your screenshot
+    const { data: owners, error } = await supabase
+        .from("pg_owners") 
+        .select("id, name, city, total_tenants, monthly_revenue, plan, status")
+        .order("name", { ascending: true });
 
-        if (adminProfile?.role !== "superadmin" && adminProfile?.role !== "admin") {
-            redirect("/tenant");
-        }
+    if (error) console.error("Fetch error:", error.message);
 
     return (
         <div className="flex flex-col gap-8 pb-10">
@@ -52,9 +55,11 @@ export default async function OwnersDirectory() {
                     </div>
                     <div className="flex flex-col gap-1">
                         <h1 className="text-3xl font-bold tracking-tight text-zinc-100">PG Owners Directory</h1>
-                        <p className="text-sm text-zinc-400">Manage all registered administrators and their platform access.</p>
+                        <p className="text-sm text-zinc-400">Total registered owners: {owners?.length || 0}</p>
                     </div>
                 </div>
+
+                <AddOwnerDialog />
             </div>
 
             {/* Directory Table */}
@@ -62,61 +67,61 @@ export default async function OwnersDirectory() {
                 <Card className="relative overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/50 backdrop-blur-xl shadow-2xl">
                     <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-500/50 to-transparent" />
 
-                    <CardHeader className="border-b border-white/5 pb-4">
-                        <CardTitle className="flex items-center gap-2 text-lg font-bold text-zinc-100">
-                            <Users className="h-5 w-5 text-amber-400" />
-                            Registered Owners
-                        </CardTitle>
-                    </CardHeader>
-
                     <CardContent className="p-0">
                         <Table>
                             <TableHeader className="bg-white/[0.02]">
                                 <TableRow className="border-white/5 hover:bg-transparent">
-                                    <TableHead className="pl-6 h-12 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">PG Owner</TableHead>
-                                    <TableHead className="h-12 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Contact</TableHead>
-                                    <TableHead className="h-12 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Role Status</TableHead>
-                                    <TableHead className="pr-6 h-12 text-[11px] font-semibold uppercase tracking-wider text-zinc-500 text-right">Joined Date</TableHead>
+                                    <TableHead className="pl-6 h-12 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Owner & Property</TableHead>
+                                    <TableHead className="h-12 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Business Stats</TableHead>
+                                    <TableHead className="h-12 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Status</TableHead>
+                                    <TableHead className="h-12 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Tier</TableHead>
+                                    <TableHead className="pr-6 h-12 text-[11px] font-semibold uppercase tracking-wider text-zinc-500 text-right">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {!owners || owners.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={4} className="py-20 text-center text-zinc-500 italic">
+                                        <TableCell colSpan={5} className="py-20 text-center text-zinc-500 italic">
                                             No PG Owners found in the database.
                                         </TableCell>
                                     </TableRow>
                                 ) : (
+                                    // FIXED: Removed the extra curly braces that were wrapping the map function
                                     owners.map((owner) => (
                                         <TableRow key={owner.id} className="border-white/5 transition-colors hover:bg-white/[0.02]">
                                             <TableCell className="pl-6 py-4">
-                                                <div className="flex flex-col">
-                                                    <span className="font-bold text-zinc-200">{owner.name || "Unnamed Owner"}</span>
-                                                    <span className="text-xs text-zinc-500 flex items-center gap-1">
-                                                        <MapPin className="h-3 w-3" /> {owner.city || "Not Specified"}
+                                                <div className="flex flex-col gap-1">
+                                                    <span className="font-bold text-zinc-200">{owner.name}</span>
+                                                    <span className="text-xs text-amber-400/80 flex items-center gap-1">
+                                                        <MapPin className="h-3 w-3" /> {owner.city}
                                                     </span>
                                                 </div>
                                             </TableCell>
                                             <TableCell>
-                                                <div className="flex items-center gap-2 text-sm text-zinc-400">
-                                                    <Mail className="h-3.5 w-3.5 text-zinc-600" />
-                                                    {owner.email}
+                                                <div className="flex flex-col gap-1 text-xs text-zinc-400">
+                                                    <span>Tenants: {owner.total_tenants}</span>
+                                                    <span>Revenue: ₹{owner.monthly_revenue.toLocaleString()}</span>
                                                 </div>
                                             </TableCell>
-
                                             <TableCell>
-                                                {/* FIXED: Role is now editable via switcher */}
-                                                <RoleSwitcher userId={owner.id} currentRole={owner.role} />
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge className="bg-amber-500/10 text-amber-400 border-amber-500/20 px-2 py-0.5 text-[10px] font-bold">
-                                                    {owner.role?.toUpperCase()}
+                                                <Badge className={owner.status === 'Active' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border-rose-500/20'}>
+                                                    {owner.status}
                                                 </Badge>
                                             </TableCell>
-                                            <TableCell className="pr-6 text-right text-xs text-zinc-500">
-                                                {new Date(owner.created_at).toLocaleDateString('en-GB', {
-                                                    day: 'numeric', month: 'short', year: 'numeric'
-                                                })}
+                                            <TableCell>
+                                                <Badge variant="outline" className="border-white/10 text-zinc-400">
+                                                    {owner.plan}
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell className="pr-6">
+                                                <div className="flex items-center justify-end gap-2">
+                                                    <EditOwnerDialog owner={owner} />
+                                                    <form action={async () => { "use server"; await deletePGOwner(owner.id); }}>
+                                                        <Button variant="ghost" size="icon" className="text-zinc-500 hover:text-rose-500 transition-colors">
+                                                            <Trash2 className="h-4 w-4" />
+                                                        </Button>
+                                                    </form>
+                                                </div>
                                             </TableCell>
                                         </TableRow>
                                     ))
