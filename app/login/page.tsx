@@ -146,6 +146,7 @@ export default function LoginPage() {
     
     const formData = new FormData(e.currentTarget)
     const result = await loginAction(formData)
+    console.log("Login result:", result) // Debug log to inspect the result object
     
     if (result?.error) {
       // 🚨 UPDATED ERROR TOAST: Forces a red background with stark white text
@@ -157,9 +158,9 @@ export default function LoginPage() {
       setLoading(false)
     } else if (result?.success && result.redirectTo) {
       toast({ 
-        title: "Welcome back! 🚀", 
+        title: "Welcome back!", 
         description: "Redirecting to your dashboard...",
-        className: "bg-indigo-600 text-white border-none" 
+        className: "bg-green-600 text-white border-none" 
       })
       router.push(result.redirectTo)
     }

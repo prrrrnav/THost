@@ -132,9 +132,9 @@ export default function SignupPage() {
       setLoading(false)
     } else if (result?.success) {
       toast({ 
-        title: "Account Created! 🎉", 
+        title: "Account Created!", 
         description: "Please sign in with your new credentials.",
-        className: "bg-indigo-600 text-white border-none" 
+        className: "bg-green-600 text-white border-none" 
       })
       router.push("/login")
     }
