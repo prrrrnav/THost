@@ -161,7 +161,7 @@ export default function SignupPage() {
             </div>
             <div className="flex flex-col items-center gap-1 text-center">
               <CardTitle className="text-2xl font-bold tracking-tight text-zinc-100">Create Account</CardTitle>
-              <CardDescription className="text-sm text-zinc-400">Get started with TheHost PG Manager.</CardDescription>
+              <CardDescription className="text-sm text-zinc-400">Get started with THost PG Manager.</CardDescription>
             </div>
           </CardHeader>
 

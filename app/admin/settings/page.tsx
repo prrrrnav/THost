@@ -74,7 +74,7 @@ export default function AdminSettingsPage() {
               <form className="grid gap-6 sm:grid-cols-2">
                 <div className="grid gap-2">
                   <Label htmlFor="pgName" className="text-xs font-semibold uppercase tracking-wider text-zinc-400">PG Name</Label>
-                  <Input id="pgName" defaultValue="TheHost PG" className="h-11 border-white/10 bg-zinc-900/50 text-zinc-100 focus-visible:ring-violet-500/50" />
+                  <Input id="pgName" defaultValue="THost PG" className="h-11 border-white/10 bg-zinc-900/50 text-zinc-100 focus-visible:ring-violet-500/50" />
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="contactEmail" className="text-xs font-semibold uppercase tracking-wider text-zinc-400">Contact Email</Label>

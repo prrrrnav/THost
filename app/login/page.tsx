@@ -185,7 +185,7 @@ export default function LoginPage() {
               </div>
             </div>
             <div className="flex flex-col items-center gap-1 text-center">
-              <CardTitle className="text-2xl font-bold tracking-tight text-zinc-100">TheHost<span className="text-indigo-500">.</span></CardTitle>
+              <CardTitle className="text-2xl font-bold tracking-tight text-zinc-100">THost<span className="text-indigo-500">.</span></CardTitle>
               <CardDescription className="text-sm text-zinc-400">Welcome back. Sign in to your account.</CardDescription>
             </div>
           </CardHeader>
