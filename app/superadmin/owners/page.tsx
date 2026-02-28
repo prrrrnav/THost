@@ -26,9 +26,7 @@ export default async function OwnersDirectory() {
         .eq("id", user.id)
         .single()
 
-    if (adminProfile?.role !== "superadmin") {
-        redirect("/tenant") // Redirect non-superadmins
-    }
+       
 
     // 2. Fetch PG Owners (Admins)
     const { data: owners } = await supabase
@@ -36,6 +34,10 @@ export default async function OwnersDirectory() {
         .select("*")
         .eq("role", "admin")
         .order("created_at", { ascending: false })
+
+        if (adminProfile?.role !== "superadmin" && adminProfile?.role !== "admin") {
+            redirect("/tenant");
+        }
 
     return (
         <div className="flex flex-col gap-8 pb-10">

@@ -146,6 +146,7 @@ export default function LoginPage() {
     
     const formData = new FormData(e.currentTarget)
     const result = await loginAction(formData)
+    console.log("Login result:", result) // Debug log to inspect the result object
     
     if (result?.error) {
       // 🚨 UPDATED ERROR TOAST: Forces a red background with stark white text

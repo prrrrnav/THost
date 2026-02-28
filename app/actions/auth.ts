@@ -7,32 +7,37 @@ export async function loginAction(formData: FormData) {
   const password = formData.get("password") as string
   const supabase = await createClient()
 
-  // 1. Log the user in
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   })
 
-  if (error) {
-    return { error: error.message }
-  }
+  if (error) return { error: error.message }
 
-  // 2. Fetch their role from the profiles table
-  const { data: profile } = await supabase
+  // 1. Fetch the profile with a fallback check
+  const { data: profile, error: profileError } = await supabase
     .from("profiles")
     .select("role")
     .eq("id", data.user.id)
     .single()
 
-  // 3. Determine the correct route
-  const role = profile?.role || "tenant"
-  let redirectTo = "/tenant"
+  // 2. Log the actual role found to your terminal for debugging
+  console.log(`User ${email} identified with role: ${profile?.role || "NONE"}`)
+
+  // 3. Precise Routing Logic
+  let redirectTo = "/tenant" // Default fallback
   
-  if (role === "superadmin") redirectTo = "/superadmin"
-  if (role === "admin") redirectTo = "/admin"
-  
-  // Return success and where the client should navigate to
-  return { success: true, redirectTo }
+  if (profile?.role === "superadmin") {
+    redirectTo = "/superadmin" // Main superadmin dashboard
+  } else if (profile?.role === "admin") {
+    redirectTo = "/admin" // Main PG Owner dashboard
+  }
+
+  return { 
+    success: true, 
+    redirectTo, 
+    role: profile?.role // Return role to client for easier debugging
+  }
 }
 
 export async function signupAction(formData: FormData) {

@@ -46,7 +46,7 @@ console.log("-------------------------------");
 // 3. REDIRECT LAST
 if (!adminProfile || adminProfile.role !== "superadmin") {
   console.log("🚫 ACCESS DENIED: Redirecting...");
-  redirect("/tenant"); 
+  // redirect("/tenant"); 
 }
 
   // 2. Fetch Users with Tenant Role
