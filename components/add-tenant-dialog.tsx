@@ -75,11 +75,19 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Plus } from "lucide-react"
 import { useState } from "react"
 
-export function AddTenantDialog() {
+export function AddTenantDialog({ pgs = [] }: { pgs?: { id: string; name: string }[] }) {
   const [open, setOpen] = useState(false)
+  const [selectedPg, setSelectedPg] = useState<string>(pgs.length > 0 ? pgs[0].id : "")
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -98,7 +106,7 @@ export function AddTenantDialog() {
       <DialogContent className="sm:max-w-[425px] border-white/10 bg-zinc-950/80 p-6 backdrop-blur-2xl shadow-[0_0_50px_-12px_rgba(139,92,246,0.25)]">
         {/* Subtle top glow line */}
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-violet-500/50 to-transparent" />
-        
+
         <DialogHeader className="mb-2">
           <DialogTitle className="text-xl font-bold tracking-tight text-zinc-100">
             Add New Resident
@@ -120,11 +128,11 @@ export function AddTenantDialog() {
             <Label htmlFor="name" className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
               Full Name
             </Label>
-            <Input 
-              id="name" 
-              name="name" 
-              placeholder="Rajesh Kumar" 
-              required 
+            <Input
+              id="name"
+              name="name"
+              placeholder="Rajesh Kumar"
+              required
               className="h-10 border-white/10 bg-zinc-900/50 text-zinc-100 placeholder:text-zinc-600 transition-all focus-visible:border-violet-500/50 focus-visible:bg-zinc-900 focus-visible:ring-1 focus-visible:ring-violet-500/50"
             />
           </div>
@@ -133,13 +141,32 @@ export function AddTenantDialog() {
             <Label htmlFor="phone" className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
               WhatsApp Number
             </Label>
-            <Input 
-              id="phone" 
-              name="phone" 
-              placeholder="+91..." 
-              required 
+            <Input
+              id="phone"
+              name="phone"
+              placeholder="+91..."
+              required
               className="h-10 border-white/10 bg-zinc-900/50 text-zinc-100 placeholder:text-zinc-600 transition-all focus-visible:border-violet-500/50 focus-visible:bg-zinc-900 focus-visible:ring-1 focus-visible:ring-violet-500/50"
             />
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="pg_id" className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+              PG Property
+            </Label>
+            <input type="hidden" name="pg_id" value={selectedPg} />
+            <Select value={selectedPg} onValueChange={setSelectedPg} required>
+              <SelectTrigger className="h-10 border-white/10 bg-zinc-900/50 text-zinc-100 placeholder:text-zinc-600 transition-all focus-visible:border-violet-500/50 focus-visible:bg-zinc-900 focus-visible:ring-1 focus-visible:ring-violet-500/50" id="pg_id">
+                <SelectValue placeholder="Select Property" />
+              </SelectTrigger>
+              <SelectContent className="border-white/10 bg-zinc-950 text-zinc-200">
+                {pgs.map((pg) => (
+                  <SelectItem key={pg.id} value={pg.id} className="cursor-pointer focus:bg-violet-500/20 focus:text-violet-300">
+                    {pg.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -149,12 +176,12 @@ export function AddTenantDialog() {
               </Label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500">₹</span>
-                <Input 
-                  id="rent" 
-                  name="rent" 
-                  type="number" 
-                  placeholder="3000" 
-                  required 
+                <Input
+                  id="rent"
+                  name="rent"
+                  type="number"
+                  placeholder="3000"
+                  required
                   className="h-10 border-white/10 bg-zinc-900/50 pl-7 text-zinc-100 placeholder:text-zinc-600 transition-all focus-visible:border-violet-500/50 focus-visible:bg-zinc-900 focus-visible:ring-1 focus-visible:ring-violet-500/50"
                 />
               </div>
@@ -163,14 +190,14 @@ export function AddTenantDialog() {
               <Label htmlFor="due_date" className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
                 Due Date (Day)
               </Label>
-              <Input 
-                id="due_date" 
-                name="due_date" 
-                type="number" 
-                placeholder="1" 
+              <Input
+                id="due_date"
+                name="due_date"
+                type="number"
+                placeholder="1"
                 min="1"
                 max="31"
-                required 
+                required
                 className="h-10 border-white/10 bg-zinc-900/50 text-zinc-100 placeholder:text-zinc-600 transition-all focus-visible:border-violet-500/50 focus-visible:bg-zinc-900 focus-visible:ring-1 focus-visible:ring-violet-500/50"
               />
             </div>
@@ -180,18 +207,18 @@ export function AddTenantDialog() {
             <Label htmlFor="room_number" className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
               Room Number
             </Label>
-            <Input 
-              id="room_number" 
-              name="room_number" 
-              placeholder="101-B" 
-              required 
+            <Input
+              id="room_number"
+              name="room_number"
+              placeholder="101-B"
+              required
               className="h-10 border-white/10 bg-zinc-900/50 text-zinc-100 placeholder:text-zinc-600 transition-all focus-visible:border-violet-500/50 focus-visible:bg-zinc-900 focus-visible:ring-1 focus-visible:ring-violet-500/50"
             />
           </div>
 
           {/* Glowing Submit Button */}
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             className="group relative mt-4 h-11 w-full overflow-hidden rounded-xl bg-violet-600 text-white transition-all hover:bg-violet-500 hover:shadow-[0_0_20px_-5px_rgba(139,92,246,0.5)]"
           >
             <div className="absolute inset-0 flex h-full w-full justify-center [transform:skew(-12deg)_translateX(-100%)] group-hover:duration-1000 group-hover:[transform:skew(-12deg)_translateX(100%)]">

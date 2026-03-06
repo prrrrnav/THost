@@ -127,7 +127,23 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
+  }
+
+  /* Custom Sleek Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-violet-900/40 rounded-full border border-violet-500/20 hover:bg-violet-800/60 transition-all;
+    box-shadow: inset 0 0 10px rgba(139, 92, 246, 0.1);
   }
 }

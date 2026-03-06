@@ -72,7 +72,7 @@
 //   // --- DELETE HANDLER ---
 //   const handleDelete = async (id: string) => {
 //     if (!confirm("Are you sure you want to delete this tenant?")) return
-    
+
 //     setDeletingId(id)
 //     try {
 //       await deleteTenant(id)
@@ -140,7 +140,7 @@
 //                   </TableCell>
 //                   <TableCell className="pr-6 text-right flex justify-end gap-1">
 //                     <Button variant="ghost" size="icon" className="h-7 w-7"><Eye className="h-3.5 w-3.5" /></Button>
-                    
+
 //                     <EditTenantDialog tenant={tenant} />
 
 //                     {/* --- DELETE BUTTON --- */}
@@ -159,7 +159,7 @@
 //             )}
 //           </TableBody>
 //         </Table>
-        
+
 //         {/* Pagination logic remains identical but uses data length */}
 //         {totalPages > 1 && (
 //           <div className="flex items-center justify-between border-t border-border px-6 py-3">
@@ -182,7 +182,7 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { formatCurrency, type TenantStatus } from "@/lib/data" 
+import { formatCurrency, type TenantStatus } from "@/lib/data"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -203,7 +203,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Search, Eye, ChevronLeft, ChevronRight, Trash2, Loader2, Users } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight, Trash2, Loader2, Users } from "lucide-react"
 import { deleteTenant } from "@/app/actions/tenants"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
@@ -229,7 +229,7 @@ function statusClasses(status: string) {
   }
 }
 
-export function TenantsTable({ data }: { data: any[] }) {
+export function TenantsTable({ data, pgs = [] }: { data: any[], pgs?: { id: string; name: string }[] }) {
   const [search, setSearch] = useState("")
   const [filter, setFilter] = useState<"All" | TenantStatus>("All")
   const [page, setPage] = useState(1)
@@ -254,7 +254,7 @@ export function TenantsTable({ data }: { data: any[] }) {
   // --- DELETE HANDLER ---
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this tenant?")) return
-    
+
     setDeletingId(id)
     try {
       await deleteTenant(id)
@@ -278,7 +278,7 @@ export function TenantsTable({ data }: { data: any[] }) {
           </div>
           <CardTitle className="text-lg font-bold tracking-tight text-zinc-100">Tenant Directory</CardTitle>
         </div>
-        
+
         <div className="flex items-center gap-3">
           {/* Glowing Search Input */}
           <div className="relative group">
@@ -293,7 +293,7 @@ export function TenantsTable({ data }: { data: any[] }) {
               />
             </div>
           </div>
-          
+
           {/* Status Filter */}
           <Select value={filter} onValueChange={(v) => { setFilter(v as any); setPage(1) }}>
             <SelectTrigger className="h-9 w-32 border-white/10 bg-black/50 text-sm text-zinc-200 focus:ring-1 focus:ring-violet-500/50 transition-all">
@@ -308,7 +308,7 @@ export function TenantsTable({ data }: { data: any[] }) {
           </Select>
         </div>
       </CardHeader>
-      
+
       <CardContent className="p-0">
         <Table>
           <TableHeader className="bg-black/20">
@@ -342,18 +342,13 @@ export function TenantsTable({ data }: { data: any[] }) {
                   </TableCell>
                   <TableCell className="pr-6 text-right">
                     <div className="flex justify-end gap-1">
-                      {/* View Action */}
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-400 hover:bg-white/10 hover:text-zinc-100 transition-colors">
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      
                       {/* Edit Action (Triggers your previously styled EditDialog) */}
-                      <EditTenantDialog tenant={tenant} />
+                      <EditTenantDialog tenant={tenant} pgs={pgs} />
 
                       {/* Delete Action */}
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         className="h-8 w-8 text-zinc-400 transition-colors hover:bg-rose-500/10 hover:text-rose-400"
                         onClick={() => handleDelete(tenant.id)}
                         disabled={deletingId === tenant.id}
@@ -367,37 +362,37 @@ export function TenantsTable({ data }: { data: any[] }) {
             )}
           </TableBody>
         </Table>
-        
+
         {/* Aceternity Style Pagination Footer */}
         {totalPages > 1 && (
           <div className="flex items-center justify-between border-t border-white/5 bg-black/20 px-6 py-3">
-             <span className="text-xs font-medium text-zinc-500">
-               Showing <span className="text-zinc-300">{(page - 1) * PAGE_SIZE + 1}</span>-
-               <span className="text-zinc-300">{Math.min(page * PAGE_SIZE, filtered.length)}</span> of <span className="text-zinc-300">{filtered.length}</span>
-             </span>
-             <div className="flex items-center gap-2">
-               <Button 
-                 variant="outline" 
-                 size="icon" 
-                 className="h-8 w-8 border-white/10 bg-transparent text-zinc-400 hover:bg-white/10 hover:text-zinc-100 disabled:opacity-50" 
-                 disabled={page === 1} 
-                 onClick={() => setPage((p) => p - 1)}
-               >
-                 <ChevronLeft className="h-4 w-4" />
-               </Button>
-               <span className="flex h-8 min-w-[32px] items-center justify-center rounded-md bg-white/5 px-2 text-xs font-medium text-zinc-300">
-                 {page} / {totalPages}
-               </span>
-               <Button 
-                 variant="outline" 
-                 size="icon" 
-                 className="h-8 w-8 border-white/10 bg-transparent text-zinc-400 hover:bg-white/10 hover:text-zinc-100 disabled:opacity-50" 
-                 disabled={page === totalPages} 
-                 onClick={() => setPage((p) => p + 1)}
-               >
-                 <ChevronRight className="h-4 w-4" />
-               </Button>
-             </div>
+            <span className="text-xs font-medium text-zinc-500">
+              Showing <span className="text-zinc-300">{(page - 1) * PAGE_SIZE + 1}</span>-
+              <span className="text-zinc-300">{Math.min(page * PAGE_SIZE, filtered.length)}</span> of <span className="text-zinc-300">{filtered.length}</span>
+            </span>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-8 w-8 border-white/10 bg-transparent text-zinc-400 hover:bg-white/10 hover:text-zinc-100 disabled:opacity-50"
+                disabled={page === 1}
+                onClick={() => setPage((p) => p - 1)}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <span className="flex h-8 min-w-[32px] items-center justify-center rounded-md bg-white/5 px-2 text-xs font-medium text-zinc-300">
+                {page} / {totalPages}
+              </span>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-8 w-8 border-white/10 bg-transparent text-zinc-400 hover:bg-white/10 hover:text-zinc-100 disabled:opacity-50"
+                disabled={page === totalPages}
+                onClick={() => setPage((p) => p + 1)}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         )}
       </CardContent>

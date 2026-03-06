@@ -11,7 +11,16 @@ export const metadata = {
 export default async function TenantsPage() {
   // 1. Initialize Supabase Client
   const supabase = await createClient()
-  
+
+  // 1.1 Fetch user to get owner_id
+  const { data: { user } } = await supabase.auth.getUser()
+
+  // 1.2 Fetch PG Details for Dropdowns
+  const { data: pgDetails } = await supabase
+    .from("pg_details")
+    .select("id, name")
+    .eq("owner_id", user?.id)
+
   // 2. Fetch all tenants from the database
   const { data: tenants, error } = await supabase
     .from("tenants")
@@ -24,7 +33,7 @@ export default async function TenantsPage() {
 
   return (
     <div className="flex flex-col gap-8 pb-10">
-      
+
       {/* Page Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between animate-in fade-in slide-in-from-bottom-4 duration-700">
         <div className="flex items-center gap-5">
@@ -45,7 +54,7 @@ export default async function TenantsPage() {
 
         {/* Add Tenant Button */}
         <div className="flex items-center">
-          <AddTenantDialog />
+          <AddTenantDialog pgs={pgDetails || []} />
         </div>
       </div>
 
@@ -53,9 +62,9 @@ export default async function TenantsPage() {
       <div className="relative animate-in fade-in slide-in-from-bottom-8 duration-700 delay-150 fill-mode-both">
         {/* Subtle background glow behind the table */}
         <div className="absolute -inset-1 rounded-2xl bg-gradient-to-b from-violet-500/5 to-transparent blur-xl"></div>
-        
+
         <div className="relative rounded-2xl border border-white/10 bg-zinc-950/50 p-6 backdrop-blur-xl shadow-2xl">
-          <TenantsTable data={tenants || []} />
+          <TenantsTable data={tenants || []} pgs={pgDetails || []} />
         </div>
       </div>
 
