@@ -49,12 +49,23 @@ export default async function SuperAdminDashboard() {
     .order("name", { ascending: true })
 
   const { count: totalTenants } = await supabase
-    .from("profiles")
+    .from("tenants")
     .select("*", { count: 'exact', head: true })
-    .eq("role", "tenant")
+
+  const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
+
+  const { count: newOwners } = await supabase
+    .from("pg_owners")
+    .select("*", { count: 'exact', head: true })
+    .gte("created_at", startOfMonth)
+
+  const { count: newTenants } = await supabase
+    .from("tenants")
+    .select("*", { count: 'exact', head: true })
+    .gte("created_at", startOfMonth)
 
   // 2. Calculate Aggregated Metrics
-  const totalRevenue = owners?.reduce((acc, curr) => acc + (curr.monthly_revenue || 0), 0) || 0
+  const totalRevenue = owners?.reduce((acc, curr) => acc + (Number(curr.monthly_revenue) || 0), 0) || 0
   const activeSubs = owners?.filter(o => o.status === 'Active').length || 0
   const totalOwners = owners?.length || 0
 
@@ -77,11 +88,11 @@ export default async function SuperAdminDashboard() {
 
       {/* Dynamic Stat Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-150 fill-mode-both">
-      <StatCard
+        <StatCard
           title="Total PG Owners"
           value={totalOwners.toString()}
           subtitle="Registered admins"
-          change="Live"
+          change={`+${newOwners || 0} this month`}
           changeType="positive"
           iconName="building" // Pass as a string
           iconColor="text-amber-400"
@@ -91,7 +102,7 @@ export default async function SuperAdminDashboard() {
           title="Total Tenants"
           value={totalTenants?.toString() || "0"}
           subtitle="Across all properties"
-          change="Real-time"
+          change={`+${newTenants || 0} this month`}
           changeType="positive"
           iconName="users" // Pass as a string
           iconColor="text-emerald-400"
@@ -101,9 +112,9 @@ export default async function SuperAdminDashboard() {
           title="Platform Revenue"
           value={formatCurrency(totalRevenue)}
           subtitle="Total property revenue"
-          change="Estimated"
+          change="Recurring"
           changeType="positive"
-           iconName='IndianRupee'
+          iconName='IndianRupee'
           iconColor="text-violet-400"
           iconBg="bg-violet-500/10"
         />
@@ -111,7 +122,7 @@ export default async function SuperAdminDashboard() {
           title="Active Subscriptions"
           value={activeSubs.toString()}
           subtitle={`${totalOwners - activeSubs} suspended`}
-          change={`${Math.round((activeSubs / totalOwners) * 100) || 0}% active`}
+          change={`${totalOwners > 0 ? Math.round((activeSubs / totalOwners) * 100) : 0}% active`}
           changeType="neutral"
           iconName='CreditCard'
           iconColor="text-orange-400"
