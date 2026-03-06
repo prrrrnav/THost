@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <style>
+    .icon-fill { fill: #000000; }
+    @media (prefers-color-scheme: dark) {
+      .icon-fill { fill: #ffffff; }
+    }
+  </style>
+  <g class="icon-fill">
+    <rect x="27" y="15" width="12" height="70" rx="3"/>
+    <rect x="61" y="15" width="12" height="70" rx="3"/>
+    <path d="M39 44h22v12H39z" />
+  </g>
+</svg>

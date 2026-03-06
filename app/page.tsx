@@ -376,7 +376,7 @@ import { Button } from "@/components/ui/button"
 export default function HomePage() {
   return (
     <main className="relative min-h-screen overflow-hidden bg-black text-zinc-100 selection:bg-indigo-500/30">
-      
+
       {/* 1. Global Aceternity Background Grid & Glows */}
       <div className="pointer-events-none absolute inset-0 z-0 h-full w-full bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]">
         {/* Top ambient glow */}
@@ -419,7 +419,7 @@ export default function HomePage() {
         <h1 className="animate-in fade-in slide-in-from-bottom-6 duration-700 delay-150 fill-mode-both max-w-4xl text-5xl font-extrabold tracking-tight text-white sm:text-7xl md:leading-[1.1]">
           Manage your properties with <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-violet-400">absolute clarity.</span>
         </h1>
-        
+
         <p className="animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300 fill-mode-both mt-6 max-w-2xl text-lg text-zinc-400 sm:text-xl">
           The ultimate platform for PG Owners, Tenants, and Platform Administrators. Experience seamless rent tracking, real-time issue resolution, and intelligent dashboards.
         </p>
@@ -446,7 +446,7 @@ export default function HomePage() {
       {/* 4. Feature Cards Section (Role Portals) */}
       <section className="relative z-10 mx-auto max-w-6xl px-4 py-32">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-          
+
           {/* PG Owner Feature Card */}
           <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-zinc-950/50 p-8 backdrop-blur-xl transition-all hover:-translate-y-2 hover:border-violet-500/30 hover:shadow-[0_10px_40px_-10px_rgba(139,92,246,0.3)]">
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-violet-500/10 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
@@ -491,6 +491,26 @@ export default function HomePage() {
 
         </div>
       </section>
+
+      {/* 5. Footer */}
+      <footer className="relative z-10 border-t border-white/10 bg-black/40 py-8 backdrop-blur-md mt-12">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 md:flex-row">
+          <p className="text-sm text-zinc-500 text-center md:text-left">
+            &copy; {new Date().getFullYear()} THost. All rights reserved.<br className="md:hidden" /> Built for PG owners across India.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-zinc-400 md:gap-6">
+            <Link href="/terms" className="transition-colors hover:text-zinc-100">
+              Terms & Conditions
+            </Link>
+            <Link href="/refunds" className="transition-colors hover:text-zinc-100">
+              Cancellation & Refund Policy
+            </Link>
+            <a href="mailto:support@thost.com" className="transition-colors hover:text-zinc-100">
+              Contact Support
+            </a>
+          </div>
+        </div>
+      </footer>
 
     </main>
   )
