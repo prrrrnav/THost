@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache"
 
 export async function addExpense(formData: FormData) {
   const supabase = await createClient()
-  
+
   const rawData = {
     category: formData.get("category") as string,
     amount: Number(formData.get("amount")),
@@ -16,8 +16,37 @@ export async function addExpense(formData: FormData) {
   const { error } = await supabase.from("expenses").insert([rawData])
 
   if (error) throw new Error(error.message)
-  
-  revalidatePath("/admin") // Refresh the dashboard stats instantly
+
+  revalidatePath("/admin")
+  revalidatePath("/admin/Expense")
+}
+
+export async function deleteExpense(id: string) {
+  const supabase = await createClient()
+  const { error } = await supabase.from("expenses").delete().eq("id", id)
+
+  if (error) throw new Error(error.message)
+
+  revalidatePath("/admin")
+  revalidatePath("/admin/Expense")
+}
+
+export async function updateExpense(id: string, formData: FormData) {
+  const supabase = await createClient()
+
+  const rawData = {
+    category: formData.get("category") as string,
+    amount: Number(formData.get("amount")),
+    description: formData.get("description") as string,
+    expense_date: formData.get("expense_date") as string || new Date().toISOString().split('T')[0],
+  }
+
+  const { error } = await supabase.from("expenses").update(rawData).eq("id", id)
+
+  if (error) throw new Error(error.message)
+
+  revalidatePath("/admin")
+  revalidatePath("/admin/Expense")
 }
 
 // Ensure calculateMonthlyProfit still works with the new schema

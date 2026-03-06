@@ -100,6 +100,7 @@ import { TenantsTable } from "@/components/tenants-table"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { AddTenantDialog } from "@/components/add-tenant-dialog"
+import { AddExpenseDialog } from "@/components/add-expense-dialog"
 import { createClient } from "@/lib/supabase/server"
 import { calculateMonthlyProfit } from "@/app/actions/finance"
 
@@ -173,12 +174,12 @@ export default async function AdminDashboard() {
 
         {/* Page header */}
         <div className="anim-1 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-4">
             {/* Icon badge */}
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-violet-500/20 bg-gradient-to-br from-violet-500/15 to-indigo-500/10 shadow-lg shadow-violet-500/10">
+            <div className="flex h-10 w-10 min-w-10 items-center justify-center rounded-xl border border-violet-500/20 bg-gradient-to-br from-violet-500/15 to-indigo-500/10 shadow-lg shadow-violet-500/10">
               <Building2 className="h-[18px] w-[18px] text-violet-400" />
             </div>
-            <div>
+            <div className="mr-auto md:mr-4">
               <div className="flex items-center gap-2">
                 <h1 className="text-xl font-semibold tracking-tight text-white/90">Dashboard</h1>
                 <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-400">
@@ -190,7 +191,11 @@ export default async function AdminDashboard() {
                 Welcome back. Here is your PG overview.
               </p>
             </div>
-            <AddTenantDialog pgs={pgDetails || []} />
+
+            <div className="flex items-center gap-3 mt-2 md:mt-0 w-full md:w-auto">
+              <AddExpenseDialog />
+              <AddTenantDialog pgs={pgDetails || []} />
+            </div>
           </div>
 
           {/* Reminder toggle */}
