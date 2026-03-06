@@ -75,12 +75,12 @@ export function EditOwnerDialog({ owner }: EditOwnerProps) {
               <Label htmlFor="edit-fullName" className="text-zinc-300">Full Name</Label>
               <div className="relative">
                 <User className="absolute left-3 top-3 h-4 w-4 text-zinc-500" />
-                <Input 
-                  id="edit-fullName" 
-                  name="fullName" 
-                  defaultValue={owner.full_name} 
-                  className="pl-9 bg-white/5 border-white/10" 
-                  required 
+                <Input
+                  id="edit-fullName"
+                  name="fullName"
+                  defaultValue={owner.name}
+                  className="pl-9 bg-white/5 border-white/10"
+                  required
                 />
               </div>
             </div>
@@ -88,13 +88,13 @@ export function EditOwnerDialog({ owner }: EditOwnerProps) {
               <Label htmlFor="edit-email" className="text-zinc-300">Email</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-3 h-4 w-4 text-zinc-500" />
-                <Input 
-                  id="edit-email" 
-                  name="email" 
-                  type="email" 
-                  defaultValue={owner.email} 
-                  className="pl-9 bg-white/5 border-white/10" 
-                  required 
+                <Input
+                  id="edit-email"
+                  name="email"
+                  type="email"
+                  defaultValue={owner.email}
+                  className="pl-9 bg-white/5 border-white/10"
+                  required
                 />
               </div>
             </div>
@@ -104,12 +104,12 @@ export function EditOwnerDialog({ owner }: EditOwnerProps) {
             <Label htmlFor="edit-pgName" className="text-zinc-300">PG Property Name</Label>
             <div className="relative">
               <Building2 className="absolute left-3 top-3 h-4 w-4 text-zinc-500" />
-              <Input 
-                id="edit-pgName" 
-                name="pgName" 
-                defaultValue={owner.pg_details?.[0]?.pg_name} 
-                className="pl-9 bg-white/5 border-white/10" 
-                required 
+              <Input
+                id="edit-pgName"
+                name="pgName"
+                defaultValue={owner.pg_details?.[0]?.pg_name || ""}
+                className="pl-9 bg-white/5 border-white/10"
+                required
               />
             </div>
           </div>
@@ -119,12 +119,12 @@ export function EditOwnerDialog({ owner }: EditOwnerProps) {
               <Label htmlFor="edit-phone" className="text-zinc-300">Phone Number</Label>
               <div className="relative">
                 <Phone className="absolute left-3 top-3 h-4 w-4 text-zinc-500" />
-                <Input 
-                  id="edit-phone" 
-                  name="phone" 
-                  defaultValue={owner.pg_details?.[0]?.contact_number} 
-                  className="pl-9 bg-white/5 border-white/10" 
-                  required 
+                <Input
+                  id="edit-phone"
+                  name="phone"
+                  defaultValue={owner.pg_details?.[0]?.contact_number || ""}
+                  className="pl-9 bg-white/5 border-white/10"
+                  required
                 />
               </div>
             </div>
@@ -132,19 +132,19 @@ export function EditOwnerDialog({ owner }: EditOwnerProps) {
               <Label htmlFor="edit-city" className="text-zinc-300">City</Label>
               <div className="relative">
                 <MapPin className="absolute left-3 top-3 h-4 w-4 text-zinc-500" />
-                <Input 
-                  id="edit-city" 
-                  name="city" 
-                  defaultValue={owner.city} 
-                  className="pl-9 bg-white/5 border-white/10" 
+                <Input
+                  id="edit-city"
+                  name="city"
+                  defaultValue={owner.city}
+                  className="pl-9 bg-white/5 border-white/10"
                 />
               </div>
             </div>
           </div>
 
           <DialogFooter>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               disabled={loading}
               className="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold"
             >

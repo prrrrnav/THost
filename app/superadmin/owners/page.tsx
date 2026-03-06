@@ -6,7 +6,7 @@ import { Users, ShieldCheck, Mail, Phone, Building2, Trash2, MapPin } from "luci
 import { RoleSwitcher } from "@/components/role-switcher"
 import { Button } from "@/components/ui/button"
 import { AddOwnerDialog } from "@/components/add-owner-dialog"
-import { EditOwnerDialog } from "@/components/edit-owner-dialog" 
+import { EditOwnerDialog } from "@/components/edit-owner-dialog"
 import { deletePGOwner } from "@/app/actions/superadmin"
 import {
     Table,
@@ -36,7 +36,7 @@ export default async function OwnersDirectory() {
 
     // 2. Fetch data from the pg_owners table discovered in your screenshot
     const { data: owners, error } = await supabase
-        .from("pg_owners") 
+        .from("pg_owners")
         .select("id, name, city, total_tenants, monthly_revenue, plan, status")
         .order("name", { ascending: true });
 

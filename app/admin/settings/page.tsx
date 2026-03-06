@@ -10,7 +10,7 @@
 // export default function AdminSettingsPage() {
 //   return (
 //     <div className="flex flex-col gap-8 pb-10">
-      
+
 //       {/* Page Header */}
 //       <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
 //         <div className="flex items-center gap-5">
@@ -33,7 +33,7 @@
 //       {/* Settings Content Layout */}
 //       <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 delay-150 fill-mode-both">
 //         <Tabs defaultValue="general" className="w-full">
-          
+
 //           {/* Sleek Glassmorphic Tabs Navigation */}
 //           <TabsList className="mb-8 flex h-auto w-full max-w-md gap-2 rounded-2xl border border-white/10 bg-black/40 p-2 backdrop-blur-xl">
 //             <TabsTrigger 
@@ -65,7 +65,7 @@
 //           <TabsContent value="general" className="focus-visible:outline-none focus-visible:ring-0">
 //             <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/50 backdrop-blur-xl shadow-2xl p-6 sm:p-8">
 //               <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-violet-500/50 to-transparent" />
-              
+
 //               <div className="mb-6">
 //                 <h3 className="text-lg font-bold text-zinc-100">PG Information</h3>
 //                 <p className="text-sm text-zinc-400">Update the public details of your PG property.</p>
@@ -101,7 +101,7 @@
 //           <TabsContent value="security" className="focus-visible:outline-none focus-visible:ring-0">
 //             <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/50 backdrop-blur-xl shadow-2xl p-6 sm:p-8">
 //               <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-rose-500/50 to-transparent" />
-              
+
 //               <div className="mb-6">
 //                 <h3 className="text-lg font-bold text-zinc-100">Security & Access</h3>
 //                 <p className="text-sm text-zinc-400">Protect your account and manage passwords.</p>
@@ -149,7 +149,7 @@
 //           <TabsContent value="notifications" className="focus-visible:outline-none focus-visible:ring-0">
 //             <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/50 backdrop-blur-xl shadow-2xl p-6 sm:p-8">
 //               <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-500/50 to-transparent" />
-              
+
 //               <div className="mb-6">
 //                 <h3 className="text-lg font-bold text-zinc-100">Notification Preferences</h3>
 //                 <p className="text-sm text-zinc-400">Choose what you want to be notified about.</p>
@@ -198,27 +198,33 @@
 
 
 // app/admin/settings/page.tsx
-import { Settings, Building2, Bell, Shield, Key, Save } from "lucide-react"
+import { Settings, Building2, Bell, Shield, Key, Save, BedDouble } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { redirect } from "next/navigation"
-import { getAdminSettings, updateAdminSettings } from "@/app/actions/settings"
+import { getAdminSettings, updateAdminSettings, updateOccupancySettings } from "@/app/actions/settings"
 import { Badge } from "@/components/ui/badge"
 
+import { createClient } from "@/lib/supabase/server"
+
 export default async function AdminSettingsPage() {
-
- 
-
- 
- 
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect("/login")
   const settings = await getAdminSettings()
 
   if (!settings) {
     redirect("/login")
   }
+
+  // Fetch PG details specifically for Occupancy Tab
+  const { data: pgDetails } = await supabase
+    .from("pg_details")
+    .select("*")
+    .eq("owner_id", user.id)
 
   return (
     <div className="flex flex-col gap-8 pb-10">
@@ -242,7 +248,7 @@ export default async function AdminSettingsPage() {
 
       <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 delay-150 fill-mode-both">
         <Tabs defaultValue="general" className="w-full">
-          <TabsList className="mb-8 flex h-auto w-full max-w-md gap-2 rounded-2xl border border-white/10 bg-black/40 p-2 backdrop-blur-xl">
+          <TabsList className="mb-8 flex h-auto w-full max-w-2xl flex-wrap sm:flex-nowrap gap-2 rounded-2xl border border-white/10 bg-black/40 p-2 backdrop-blur-xl">
             <TabsTrigger value="general" className="flex-1 rounded-xl px-4 py-2.5 text-sm font-medium text-zinc-400 transition-all data-[state=active]:bg-violet-500/10 data-[state=active]:text-violet-300">
               <Building2 className="mr-2 h-4 w-4" /> General
             </TabsTrigger>
@@ -251,6 +257,9 @@ export default async function AdminSettingsPage() {
             </TabsTrigger>
             <TabsTrigger value="notifications" className="flex-1 rounded-xl px-4 py-2.5 text-sm font-medium text-zinc-400 transition-all data-[state=active]:bg-violet-500/10 data-[state=active]:text-violet-300">
               <Bell className="mr-2 h-4 w-4" /> Alerts
+            </TabsTrigger>
+            <TabsTrigger value="occupancy" className="flex-1 rounded-xl px-4 py-2.5 text-sm font-medium text-zinc-400 transition-all data-[state=active]:bg-violet-500/10 data-[state=active]:text-violet-300">
+              <BedDouble className="mr-2 h-4 w-4" /> Occupancy
             </TabsTrigger>
           </TabsList>
 
@@ -333,6 +342,43 @@ export default async function AdminSettingsPage() {
               </form>
             </div>
           </TabsContent>
+          <TabsContent value="occupancy">
+            <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/50 backdrop-blur-xl shadow-2xl p-6 sm:p-8">
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent" />
+              <div className="mb-6">
+                <h3 className="text-lg font-bold text-zinc-100">Occupancy Details</h3>
+                <p className="text-sm text-zinc-400">Configure total bed capacities across your properties.</p>
+              </div>
+
+              <form action={updateOccupancySettings} className="grid gap-6">
+                {pgDetails?.map((pg) => (
+                  <div key={pg.id} className="flex flex-col gap-2 rounded-xl border border-white/5 bg-black/20 p-5 hover:bg-black/40 transition-colors">
+                    <Label htmlFor={`pg_capacity_${pg.id}`} className="text-sm font-semibold text-zinc-200">
+                      {pg.name} Capacity
+                    </Label>
+                    <div className="relative max-w-[200px]">
+                      <BedDouble className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
+                      <Input
+                        id={`pg_capacity_${pg.id}`}
+                        name={`pg_capacity_${pg.id}`}
+                        type="number"
+                        min="0"
+                        defaultValue={pg.total_beds || 0}
+                        className="h-11 border-white/10 bg-zinc-900/50 pl-10 text-zinc-100 placeholder:text-zinc-600 focus-visible:ring-emerald-500/50"
+                      />
+                    </div>
+                  </div>
+                ))}
+
+                <div className="mt-4 flex justify-end">
+                  <Button type="submit" className="group relative h-11 rounded-xl bg-violet-600 px-8 text-white hover:bg-violet-500">
+                    <Save className="mr-2 h-4 w-4" /> Save Capacities
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </TabsContent>
+
         </Tabs>
       </div>
     </div>

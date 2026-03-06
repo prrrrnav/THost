@@ -45,22 +45,48 @@
 
 
 
-"use client"
-
 import { AdminSidebar } from "@/components/admin-sidebar"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Search, Bell } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { createClient } from "@/lib/supabase/server"
 
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const supabase = await createClient()
+
+  // 1. Fetch Auth User
+  const { data: { user } } = await supabase.auth.getUser()
+
+  // 2. Fetch Profile for display name (We check pg_owners specifically for Admin/Owners)
+  const { data: owner } = await supabase
+    .from("pg_owners")
+    .select("name")
+    .eq("id", user?.id)
+    .single()
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("full_name")
+    .eq("id", user?.id)
+    .single()
+
+  // 3. Logic for name and initials
+  const displayName = owner?.name || profile?.full_name || user?.user_metadata?.full_name || "Admin"
+  const initials = displayName
+    .split(" ")
+    .map((n: string) => n[0])
+    .join("")
+    .substring(0, 2)
+    .toUpperCase()
+
   return (
     <div className="flex h-screen overflow-hidden bg-black selection:bg-violet-500/30">
-      <AdminSidebar />
+      <AdminSidebar userName={displayName} initials={initials} />
 
       <div className="flex flex-1 flex-col overflow-hidden relative">
         {/* Aceternity Ambient Background Grid */}
@@ -101,10 +127,10 @@ export default function AdminLayout({
             <div className="flex cursor-pointer items-center gap-3 rounded-full border border-white/5 bg-zinc-900/50 py-1.5 pl-1.5 pr-4 transition-all hover:border-white/10 hover:bg-zinc-800">
               <Avatar className="h-7 w-7 border border-white/10">
                 <AvatarFallback className="bg-gradient-to-br from-violet-600 to-indigo-600 text-[10px] font-bold text-white">
-                  RV
+                  {initials}
                 </AvatarFallback>
               </Avatar>
-              <span className="text-xs font-medium text-zinc-300">Admin</span>
+              <span className="text-xs font-medium text-zinc-300">{displayName}</span>
             </div>
           </div>
         </header>

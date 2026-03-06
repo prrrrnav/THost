@@ -121,7 +121,12 @@ const navItems = [
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ]
 
-export function AdminSidebar() {
+interface AdminSidebarProps {
+  userName: string
+  initials: string
+}
+
+export function AdminSidebar({ userName, initials }: AdminSidebarProps) {
   const pathname = usePathname()
   const [collapsed, setCollapsed] = useState(false)
 
@@ -170,9 +175,9 @@ export function AdminSidebar() {
               {isActive && !collapsed && (
                 <div className="absolute left-0 top-1/2 h-1/2 w-1 -translate-y-1/2 rounded-r-full bg-violet-500 shadow-[0_0_10px_rgba(139,92,246,0.8)]" />
               )}
-              
+
               <item.icon className={cn("h-4 w-4 shrink-0 transition-transform duration-200", isActive ? "scale-110" : "group-hover:scale-110")} />
-              
+
               {!collapsed && <span>{item.label}</span>}
             </Link>
           )
@@ -198,20 +203,20 @@ export function AdminSidebar() {
         )}>
           <Avatar className="h-8 w-8 border border-white/10 shrink-0">
             <AvatarFallback className="bg-gradient-to-br from-violet-600 to-indigo-600 text-[10px] font-bold text-white">
-              RV
+              {initials}
             </AvatarFallback>
           </Avatar>
-          
+
           {!collapsed && (
             <div className="flex flex-1 flex-col overflow-hidden">
-              <span className="truncate text-xs font-semibold text-zinc-200">Rajesh Verma</span>
+              <span className="truncate text-xs font-semibold text-zinc-200">{userName}</span>
               <span className="truncate text-[10px] uppercase tracking-wider text-violet-400/80">Admin</span>
             </div>
           )}
-          
+
           {!collapsed && (
-            <Link 
-              href="/" 
+            <Link
+              href="/"
               aria-label="Logout"
               className="rounded-lg p-1.5 text-zinc-500 transition-colors hover:bg-rose-500/10 hover:text-rose-400"
             >

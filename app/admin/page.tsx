@@ -11,7 +11,7 @@
 // export default async function AdminDashboard() {
 //   // 1. Initialize Supabase Server Client
 //   const supabase = await createClient()
-  
+
 //   // 2. Fetch real data from your tables
 //   const { data: tenants } = await supabase
 //     .from("tenants")
@@ -34,7 +34,7 @@
 //           {/* Your new Add Tenant Button */}
 //           <AddTenantDialog />
 //         </div>
-        
+
 //         <div className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-2.5 mt-3 md:mt-0">
 //           <div className="flex flex-col">
 //             <Label className="text-sm font-medium text-card-foreground">
@@ -105,6 +105,13 @@ import { calculateMonthlyProfit } from "@/app/actions/finance"
 
 export default async function AdminDashboard() {
   const supabase = await createClient()
+
+  const { data: { user } } = await supabase.auth.getUser()
+
+  const { data: pgDetails } = await supabase
+    .from("pg_details")
+    .select("id, name")
+    .eq("owner_id", user?.id)
 
   const { data: tenants } = await supabase
     .from("tenants")
@@ -183,7 +190,7 @@ export default async function AdminDashboard() {
                 Welcome back. Here is your PG overview.
               </p>
             </div>
-            <AddTenantDialog />
+            <AddTenantDialog pgs={pgDetails || []} />
           </div>
 
           {/* Reminder toggle */}
@@ -271,7 +278,7 @@ export default async function AdminDashboard() {
 
         {/* Tenants Table */}
         <div className="anim-6">
-          <TenantsTable data={tenants || []} />
+          <TenantsTable data={tenants || []} pgs={pgDetails || []} />
         </div>
 
       </div>

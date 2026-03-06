@@ -10,7 +10,7 @@ import { revalidatePath } from "next/cache"
 async function checkSuperAdmin() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  
+
   const { data: profile } = await supabase
     .from("profiles")
     .select("role")
@@ -78,7 +78,7 @@ export async function updatePGOwner(formData: FormData) {
 
   const supabase = await createClient()
   const ownerId = formData.get("id") as string
-  
+
   const updates = {
     name: formData.get("fullName") as string,
     city: formData.get("city") as string,
@@ -104,24 +104,32 @@ export async function deletePGOwner(ownerId: string) {
   if (!isAllowed) return { error: "Access Denied" }
 
   const supabase = await createClient()
-  
+
   // Deleting from Auth (via Admin API) is best to clean up everything
   const supabaseAdmin = createSupabaseAdmin(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
 
+  // Explicitly delete from pg_owners first since there are no cascading FKs
+  const { error: pgError } = await supabaseAdmin
+    .from("pg_owners")
+    .delete()
+    .eq("id", ownerId)
+
+  if (pgError) return { error: pgError.message }
+
   const { error } = await supabaseAdmin.auth.admin.deleteUser(ownerId)
 
   if (error) return { error: error.message }
-  
+
   revalidatePath("/superadmin/owners")
   return { success: true }
 }
 
 export async function updateUserRole(targetUserId: string, newRole: string) {
   const supabase = await createClient()
-  
+
   // 1. Verify the person making the change is a SuperAdmin
   const { data: { user } } = await supabase.auth.getUser()
   const { data: adminCheck } = await supabase
@@ -141,10 +149,10 @@ export async function updateUserRole(targetUserId: string, newRole: string) {
     .eq("id", targetUserId)
 
   if (error) return { error: error.message }
-  
+
   // 3. Revalidate paths to refresh the UI immediately
   revalidatePath("/superadmin/tenants")
   revalidatePath("/superadmin/owners")
-  
+
   return { success: true }
 }
