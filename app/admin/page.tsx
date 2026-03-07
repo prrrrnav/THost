@@ -101,6 +101,7 @@ import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { AddTenantDialog } from "@/components/add-tenant-dialog"
 import { AddExpenseDialog } from "@/components/add-expense-dialog"
+import { TestWhatsappButton } from "@/components/test-whatsapp-button"
 import { createClient } from "@/lib/supabase/server"
 import { calculateMonthlyProfit } from "@/app/actions/finance"
 
@@ -198,17 +199,22 @@ export default async function AdminDashboard() {
             </div>
           </div>
 
-          {/* Reminder toggle */}
-          <div className="reminder-toggle flex items-center gap-4 mt-1 md:mt-0">
-            <div className="flex flex-col">
-              <Label htmlFor="reminder-toggle" className="text-sm font-medium text-white/65 cursor-pointer">
-                Automatic Rent Reminder
-              </Label>
-              <span className="text-[11px] text-white/30 leading-tight mt-0.5">
-                Reminders sent on the 1st of every month.
-              </span>
+          {/* Controls Right Side */}
+          <div className="flex items-center gap-3 mt-1 md:mt-0">
+            <TestWhatsappButton />
+
+            {/* Reminder toggle */}
+            <div className="reminder-toggle flex items-center gap-4">
+              <div className="flex flex-col">
+                <Label htmlFor="reminder-toggle" className="text-sm font-medium text-white/65 cursor-pointer">
+                  Automatic Rent Reminder
+                </Label>
+                <span className="text-[11px] text-white/30 leading-tight mt-0.5">
+                  Reminders sent on the 1st of every month.
+                </span>
+              </div>
+              <Switch id="reminder-toggle" defaultChecked />
             </div>
-            <Switch id="reminder-toggle" defaultChecked />
           </div>
         </div>
 
