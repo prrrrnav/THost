@@ -22,15 +22,29 @@ const navItems = [
 export default async function TenantSidebar() {
   const supabase = await createClient()
   
-  // 1. Fetch current user and their tenant record dynamically
+  // 1. Fetch current user and their tenant record (including pg_id)
   const { data: { user } } = await supabase.auth.getUser()
   const { data: tenant } = await supabase
     .from("tenants")
-    .select("name, room_number")
+    .select("name, room_number, pg_id")
     .eq("email", user?.email)
     .single()
 
-  // 2. Generate dynamic initials for the avatar
+  // 2. Fetch affiliated PG name if tenant has a pg_id
+  let pgName = "My PG"
+  if (tenant?.pg_id) {
+    const { data: pg } = await supabase
+      .from("pg_details")
+      .select("name")
+      .eq("id", tenant.pg_id)
+      .single()
+    if (pg?.name) pgName = pg.name
+  }
+
+  // 3. Derive a short display label (first 2 words max) for the sidebar
+  const pgLabel = pgName.split(" ").slice(0, 3).join(" ")
+
+  // 4. Generate dynamic initials for the avatar
   const displayName = tenant?.name || user?.user_metadata?.full_name || "Tenant"
   const initials = displayName
     .split(" ")
@@ -51,8 +65,8 @@ export default async function TenantSidebar() {
             <Home className="h-4 w-4 text-emerald-400" />
           </div>
         </div>
-        <span className="text-sm font-bold tracking-wide text-zinc-100">
-          MRK<span className="text-emerald-500"> PG</span>
+        <span className="text-sm font-bold tracking-wide text-zinc-100 truncate" title={pgName}>
+          {pgLabel}
         </span>
       </div>
 

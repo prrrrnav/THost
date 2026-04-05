@@ -14,24 +14,50 @@ export async function sendTestRentReminder() {
         });
 
         const tenant = {
-            rentAmount: 1, // ₹1
+            rentAmount: 10000, // ₹1
             dueDate: formattedDueDate,
             // REPLACE with your registered test WhatsApp number (including country code, e.g., "919876543210")
-            phoneNumber: "919335594828",
+            phoneNumber: "916307806566",
             // REPLACE with your actual UPI ID (e.g., "9876543210@paytm")
             pgOwnerUpiId: "9335594828@superyes",
             pgOwnerName: "THost Testing"
         };
 
-        // 3. Generate UPI Link
-        // Format: upi://pay?pa=<upi_id>&pn=<payee_name>&am=<amount>&cu=INR
-        const upiLink = `upi://pay?pa=${tenant.pgOwnerUpiId}&pn=${encodeURIComponent(
-            tenant.pgOwnerName
-        )}&am=${tenant.rentAmount}&cu=INR`;
+        // 3. Generate Paytm Payment Link
+        const { PAYTM_MID, PAYTM_MERCHANT_KEY, generateSignature, PAYTM_BASE_URL } = await import("@/lib/paytm");
+        const orderId = `REMINDER_${Date.now()}`;
+
+        const paytmParamsObj = {
+            body: {
+                mid: PAYTM_MID,
+                linkType: "FIXED",
+                linkDescription: `Rent Payment to ${tenant.pgOwnerName}`,
+                linkName: `Rent_${orderId}`,
+                amount: tenant.rentAmount,
+                statusCallbackUrl: `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/paytm`
+            },
+            head: {
+                tokenType: "AES",
+                signature: ""
+            }
+        };
+
+        paytmParamsObj.head.signature = await generateSignature(paytmParamsObj.body, PAYTM_MERCHANT_KEY);
+
+        const linkRes = await fetch(`${PAYTM_BASE_URL}/v1/link/create`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(paytmParamsObj)
+        });
+
+        const linkData = await linkRes.json();
+
+        // Fallback to UPI link if Paytm link creation fails
+        const paymentLink = linkData.body?.shortUrl || `upi://pay?pa=${tenant.pgOwnerUpiId}&pn=${encodeURIComponent(tenant.pgOwnerName)}&am=${tenant.rentAmount}&cu=INR`;
 
         // 4. Generate QR Code URL via QuickChart
         const qrCodeUrl = `https://quickchart.io/qr?text=${encodeURIComponent(
-            upiLink
+            paymentLink
         )}&size=300`;
 
         // 5. Send via WhatsApp Cloud API
@@ -48,7 +74,7 @@ export async function sendTestRentReminder() {
 
         // Using an image message payload, which allows us to send the QuickChart QR as media
         // and the requested text as the caption.
-        const messageCaption = `Hi, your rent of ₹${tenant.rentAmount} is due in 3 days (${tenant.dueDate}). Pay via this link: ${upiLink}`;
+        const messageCaption = `Hi, your rent of ₹${tenant.rentAmount} is due in 3 days (${tenant.dueDate}). Pay via this link: ${paymentLink}`;
 
         const payload = {
             messaging_product: "whatsapp",

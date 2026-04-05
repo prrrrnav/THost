@@ -110,6 +110,7 @@ import {
   ChevronLeft,
   ChevronRight,
   IndianRupee,
+  History,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -120,6 +121,7 @@ const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/tenants", label: "Tenants", icon: Users },
   { href: "/admin/Expense", label: "Expenses", icon: IndianRupee },
+  { href: "/admin/expense-history", label: "Expense History", icon: History },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ]
 

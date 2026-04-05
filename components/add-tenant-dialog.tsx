@@ -150,24 +150,26 @@ export function AddTenantDialog({ pgs = [] }: { pgs?: { id: string; name: string
             />
           </div>
 
-          <div className="grid gap-2">
-            <Label htmlFor="pg_id" className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-              PG Property
-            </Label>
-            <input type="hidden" name="pg_id" value={selectedPg} />
-            <Select value={selectedPg} onValueChange={setSelectedPg} required>
-              <SelectTrigger className="h-10 border-white/10 bg-zinc-900/50 text-zinc-100 placeholder:text-zinc-600 transition-all focus-visible:border-violet-500/50 focus-visible:bg-zinc-900 focus-visible:ring-1 focus-visible:ring-violet-500/50" id="pg_id">
-                <SelectValue placeholder="Select Property" />
-              </SelectTrigger>
-              <SelectContent className="border-white/10 bg-zinc-950 text-zinc-200">
-                {pgs.map((pg) => (
-                  <SelectItem key={pg.id} value={pg.id} className="cursor-pointer focus:bg-violet-500/20 focus:text-violet-300">
-                    {pg.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          {pgs.length > 1 && (
+            <div className="grid gap-2">
+              <Label htmlFor="pg_id" className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+                PG Property
+              </Label>
+              <Select value={selectedPg} onValueChange={setSelectedPg} required>
+                <SelectTrigger className="h-10 border-white/10 bg-zinc-900/50 text-zinc-100 placeholder:text-zinc-600 transition-all focus-visible:border-violet-500/50 focus-visible:bg-zinc-900 focus-visible:ring-1 focus-visible:ring-violet-500/50" id="pg_id">
+                  <SelectValue placeholder="Select Property" />
+                </SelectTrigger>
+                <SelectContent className="border-white/10 bg-zinc-950 text-zinc-200">
+                  {pgs.map((pg) => (
+                    <SelectItem key={pg.id} value={pg.id} className="cursor-pointer focus:bg-violet-500/20 focus:text-violet-300">
+                      {pg.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+          <input type="hidden" name="pg_id" value={selectedPg} />
 
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2">
@@ -214,6 +216,22 @@ export function AddTenantDialog({ pgs = [] }: { pgs?: { id: string; name: string
               required
               className="h-10 border-white/10 bg-zinc-900/50 text-zinc-100 placeholder:text-zinc-600 transition-all focus-visible:border-violet-500/50 focus-visible:bg-zinc-900 focus-visible:ring-1 focus-visible:ring-violet-500/50"
             />
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="outstanding_amount" className="text-xs font-semibold uppercase tracking-wider text-emerald-400">
+              Initial Outstanding Balance (if any)
+            </Label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500">₹</span>
+              <Input
+                id="outstanding_amount"
+                name="outstanding_amount"
+                type="number"
+                placeholder="0"
+                className="h-10 border-emerald-500/20 bg-emerald-500/5 pl-7 text-zinc-100 placeholder:text-zinc-600 transition-all focus-visible:border-emerald-500/50 focus-visible:bg-zinc-900 focus-visible:ring-1 focus-visible:ring-emerald-500/50"
+              />
+            </div>
           </div>
 
           {/* Glowing Submit Button */}
