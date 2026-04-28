@@ -209,6 +209,23 @@ export default function LoginPage() {
               </Button>
             </form>
 
+            <div className="rounded-xl border border-white/10 bg-zinc-900/50 p-4 text-sm animate-in fade-in slide-in-from-top-2 duration-1000 delay-500">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="h-1.5 w-1.5 rounded-full bg-indigo-500 animate-pulse" />
+                <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">Demo Credentials</span>
+              </div>
+              <div className="space-y-1">
+                <div className="flex justify-between items-center">
+                  <span className="text-zinc-500 text-xs">Email:</span>
+                  <code className="text-indigo-400 font-mono text-xs">Owner@gmail.com</code>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-zinc-500 text-xs">Password:</span>
+                  <code className="text-indigo-400 font-mono text-xs">Owner123</code>
+                </div>
+              </div>
+            </div>
+
             <p className="text-center text-sm text-zinc-400 mt-2">
               Don't have an account? <Link href="/signup" className="font-semibold text-indigo-400 hover:text-indigo-300 hover:underline">Sign up</Link>
             </p>
