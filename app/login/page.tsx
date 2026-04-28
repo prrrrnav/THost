@@ -209,20 +209,34 @@ export default function LoginPage() {
               </Button>
             </form>
 
-            <div className="rounded-xl border border-white/10 bg-zinc-900/50 p-4 text-sm animate-in fade-in slide-in-from-top-2 duration-1000 delay-500">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="h-1.5 w-1.5 rounded-full bg-indigo-500 animate-pulse" />
+            <div className="rounded-xl border border-white/10 bg-zinc-900/50 p-4 text-sm">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
                 <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">Demo Credentials</span>
               </div>
-              <div className="space-y-1">
+              <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="text-zinc-500 text-xs">Email:</span>
-                  <code className="text-indigo-400 font-mono text-xs">Owner@gmail.com</code>
+                  <code className="text-indigo-400 font-mono text-xs bg-indigo-500/10 px-1.5 py-0.5 rounded">Owner@gmail.com</code>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-zinc-500 text-xs">Password:</span>
-                  <code className="text-indigo-400 font-mono text-xs">Owner123</code>
+                  <code className="text-indigo-400 font-mono text-xs bg-indigo-500/10 px-1.5 py-0.5 rounded">Owner123</code>
                 </div>
+                <button 
+                  type="button"
+                  onClick={() => {
+                    const emailInput = document.getElementById('email') as HTMLInputElement;
+                    const passwordInput = document.getElementById('password') as HTMLInputElement;
+                    if (emailInput && passwordInput) {
+                      emailInput.value = 'Owner@gmail.com';
+                      passwordInput.value = 'Owner123';
+                    }
+                  }}
+                  className="mt-2 w-full rounded-lg bg-indigo-600/20 py-2 text-xs font-bold text-indigo-400 transition-all hover:bg-indigo-600/30 active:scale-[0.98]"
+                >
+                  Auto-fill Demo
+                </button>
               </div>
             </div>
 
