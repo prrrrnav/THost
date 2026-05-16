@@ -18,6 +18,7 @@ yarn-error.log*
 
 # env files
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -28,3 +29,4 @@ next-env.d.ts
 
 # Ignore AI temporary query files
 tmp_mcp_query/
+.next-dev*.log
