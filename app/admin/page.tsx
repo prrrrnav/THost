@@ -102,6 +102,7 @@ import { Label } from "@/components/ui/label"
 import { AddTenantDialog } from "@/components/add-tenant-dialog"
 import { AddExpenseDialog } from "@/components/add-expense-dialog"
 import { TestWhatsappButton } from "@/components/test-whatsapp-button"
+import { AiAdvisorCard } from "@/components/ai-advisor-card"
 import { createClient } from "@/lib/supabase/server"
 import { calculateMonthlyProfit } from "@/app/actions/finance"
 
@@ -279,6 +280,12 @@ export default async function AdminDashboard() {
         </div>
 
         <div className="anim-3 section-divider" />
+
+        <div className="anim-4">
+          <AiAdvisorCard />
+        </div>
+
+        <div className="anim-4 section-divider" />
 
         {/* Occupancy Overview */}
         <div className="anim-4">
