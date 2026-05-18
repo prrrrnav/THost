@@ -13,10 +13,20 @@ export default async function ExpensePage() {
 
     const { data: { user } } = await supabase.auth.getUser()
 
-    // 1. Fetch Expenses
+    // 1. Fetch Expenses (ONLY Current Month)
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+    // Format YYYY-MM-DD for Supabase 'date' type comparison
+    const startDateStr = startOfMonth.toISOString().split('T')[0];
+    const endDateStr = endOfMonth.toISOString().split('T')[0];
+
     const { data: expenses } = await supabase
         .from("expenses")
         .select("*")
+        .gte("expense_date", startDateStr)
+        .lte("expense_date", endDateStr)
         .order("expense_date", { ascending: false })
 
     // 2. Fetch PG Details

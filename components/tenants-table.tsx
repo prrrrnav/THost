@@ -188,6 +188,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { EditTenantDialog } from "@/components/edit-tenant-dialog"
+import { ViewTenantDialog } from "@/components/view-tenant-dialog"
 import {
   Select,
   SelectContent,
@@ -317,6 +318,7 @@ export function TenantsTable({ data, pgs = [] }: { data: any[], pgs?: { id: stri
               <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500 h-11">Room</TableHead>
               <TableHead className="hidden md:table-cell text-[11px] font-semibold uppercase tracking-wider text-zinc-500 h-11">Phone</TableHead>
               <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500 h-11">Rent</TableHead>
+              <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500 h-11 text-emerald-400">Outstanding</TableHead>
               <TableHead className="hidden lg:table-cell text-[11px] font-semibold uppercase tracking-wider text-zinc-500 h-11">Due Date</TableHead>
               <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500 h-11">Status</TableHead>
               <TableHead className="pr-6 text-right text-[11px] font-semibold uppercase tracking-wider text-zinc-500 h-11">Action</TableHead>
@@ -334,6 +336,7 @@ export function TenantsTable({ data, pgs = [] }: { data: any[], pgs?: { id: stri
                   <TableCell className="text-zinc-400">{tenant.room_number || "N/A"}</TableCell>
                   <TableCell className="hidden md:table-cell text-zinc-400">{tenant.phone}</TableCell>
                   <TableCell className="font-medium text-zinc-300">{formatCurrency(tenant.rent_amount || 0)}</TableCell>
+                  <TableCell className="font-bold text-emerald-400">{formatCurrency(tenant.outstanding_amount || 0)}</TableCell>
                   <TableCell className="hidden lg:table-cell text-zinc-400">{tenant.due_date || "-"}</TableCell>
                   <TableCell>
                     <Badge variant={statusVariant(tenant.status || "Pending")} className={cn("px-2 py-0.5 text-[10px] font-bold tracking-wide transition-all", statusClasses(tenant.status || "Pending"))}>
@@ -342,6 +345,9 @@ export function TenantsTable({ data, pgs = [] }: { data: any[], pgs?: { id: stri
                   </TableCell>
                   <TableCell className="pr-6 text-right">
                     <div className="flex justify-end gap-1">
+                      {/* View Quick Stats & History Action */}
+                      <ViewTenantDialog tenant={tenant} pgs={pgs} />
+
                       {/* Edit Action (Triggers your previously styled EditDialog) */}
                       <EditTenantDialog tenant={tenant} pgs={pgs} />
 

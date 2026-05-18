@@ -209,6 +209,33 @@ export default function LoginPage() {
               </Button>
             </form>
 
+            <div className="relative group/demo">
+              <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 opacity-20 blur transition duration-500 group-hover/demo:opacity-40"></div>
+              <button 
+                type="button"
+                onClick={() => {
+                  const emailInput = document.getElementById('email') as HTMLInputElement;
+                  const passwordInput = document.getElementById('password') as HTMLInputElement;
+                  if (emailInput && passwordInput) {
+                    emailInput.value = 'Owner@gmail.com';
+                    passwordInput.value = 'Owner123';
+                    // Trigger input event to ensure any validation/masking logic is updated
+                    emailInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    passwordInput.dispatchEvent(new Event('input', { bubbles: true }));
+                  }
+                  toast({
+                    title: "Demo credentials applied",
+                    description: "Click 'Sign In' to access the dashboard.",
+                    className: "bg-indigo-600 text-white border-none"
+                  });
+                }}
+                className="relative flex w-full items-center justify-center gap-2 rounded-xl border border-white/5 bg-zinc-900/50 py-3 text-xs font-bold tracking-wider text-zinc-300 transition-all hover:bg-zinc-800 hover:text-white"
+              >
+                <div className="h-1.5 w-1.5 rounded-full bg-indigo-500 animate-pulse" />
+                TRY DEMO ACCOUNT
+              </button>
+            </div>
+
             <p className="text-center text-sm text-zinc-400 mt-2">
               Don't have an account? <Link href="/signup" className="font-semibold text-indigo-400 hover:text-indigo-300 hover:underline">Sign up</Link>
             </p>

@@ -89,3 +89,104 @@ export async function updateOccupancySettings(formData: FormData) {
   revalidatePath("/admin")
   revalidatePath("/admin/settings")
 }
+
+export async function addPgRule(formData: FormData) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
+
+  const pgId = formData.get("pgId") as string
+  const content = formData.get("content") as string
+
+  if (!pgId || !content) throw new Error("All fields are required")
+
+  const { error } = await supabase
+    .from("property_rules")
+    .insert([{ pg_id: pgId, content: content }])
+
+  if (error) throw new Error(error.message)
+
+  revalidatePath("/admin/settings")
+  revalidatePath("/tenant")
+}
+
+export async function updatePgRule(formData: FormData) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
+
+  const ruleId = formData.get("ruleId") as string
+  const content = formData.get("content") as string
+
+  if (!ruleId || !content) throw new Error("All fields are required")
+
+  const { error } = await supabase
+    .from("property_rules")
+    .update({ content: content })
+    .eq("id", ruleId)
+
+  if (error) throw new Error(error.message)
+
+  revalidatePath("/admin/settings")
+  revalidatePath("/tenant")
+}
+
+export async function deletePgRule(ruleId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
+
+  const { error } = await supabase
+    .from("property_rules")
+    .delete()
+    .eq("id", ruleId)
+
+  if (error) throw new Error(error.message)
+
+  revalidatePath("/admin/settings")
+  revalidatePath("/tenant")
+}
+
+export async function sendPgNotice(formData: FormData) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
+
+  const pgId = formData.get("pgId") as string
+  const title = formData.get("title") as string
+  const message = formData.get("message") as string
+
+  if (!pgId || !title || !message) throw new Error("All fields are required")
+
+  const { error } = await supabase
+    .from("notifications")
+    .insert([
+      {
+        pg_id: pgId,
+        title: title,
+        message: message,
+        type: "Notice",
+        target_tenant_email: "all"
+      }
+    ])
+
+  if (error) throw new Error(error.message)
+
+  revalidatePath("/tenant")
+}
+
+export async function getPgNotifications(pgIds: string[], offset: number = 0, limit: number = 5) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
+
+  const { data, error } = await supabase
+    .from("notifications")
+    .select("*")
+    .in("pg_id", pgIds)
+    .order("created_at", { ascending: false })
+    .range(offset, offset + limit - 1)
+
+  if (error) throw new Error(error.message)
+  return data
+}

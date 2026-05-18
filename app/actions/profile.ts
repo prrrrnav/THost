@@ -33,3 +33,37 @@ export async function updateProfile(formData: FormData) {
   
   return { success: true }
 }
+
+export async function joinPgByCode(formData: FormData) {
+  const supabase = await createClient()
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: "Unauthorized" }
+
+  const code = (formData.get("joiningCode") as string)?.trim().toUpperCase()
+  if (!code) return { error: "Please enter a connection code." }
+
+  // 1. Look up the PG by its joining_code (RLS policy allows authenticated SELECT on pg_details)
+  const { data: pg, error: pgError } = await supabase
+    .from("pg_details")
+    .select("id, name")
+    .eq("joining_code", code)
+    .single()
+
+  if (pgError || !pg) {
+    return { error: "Invalid code. No PG found with that code." }
+  }
+
+  // 2. Update the tenant's pg_id
+  const { error: updateError } = await supabase
+    .from("tenants")
+    .update({ pg_id: pg.id })
+    .eq("email", user.email)
+
+  if (updateError) return { error: updateError.message }
+
+  revalidatePath("/tenant")
+  revalidatePath("/tenant/profile")
+
+  return { success: true, pgName: pg.name }
+}

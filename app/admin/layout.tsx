@@ -1,9 +1,12 @@
 import { AdminSidebar } from "@/components/admin-sidebar"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Search, Bell } from "lucide-react"
+import { Search, Bell, Megaphone } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/server"
+import { AdminNotifications } from "@/components/admin-notifications"
+
+export const dynamic = "force-dynamic"
 
 export default async function AdminLayout({
   children,
@@ -27,6 +30,21 @@ export default async function AdminLayout({
     .select("full_name")
     .eq("id", user?.id)
     .single()
+
+  // Fetch Owner's PGs to get their relevant notifications
+  const { data: pgDetails } = await supabase
+    .from("pg_details")
+    .select("id")
+    .eq("owner_id", user?.id)
+
+  const pgIds = pgDetails?.map((pg) => pg.id) || []
+
+  const { data: notifications } = await supabase
+    .from("notifications")
+    .select("*")
+    .in("pg_id", pgIds)
+    .order("created_at", { ascending: false })
+    .limit(5)
 
   // 3. Logic for name and initials
   const displayName = owner?.name || profile?.full_name || user?.user_metadata?.full_name || "Admin"
@@ -63,18 +81,11 @@ export default async function AdminLayout({
 
           {/* Right side controls */}
           <div className="flex items-center gap-4">
-            {/* Bell Notification */}
-            <div className="relative group">
-              <div className="absolute -inset-0.5 rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 opacity-0 blur transition duration-300 group-hover:opacity-30"></div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="relative h-9 w-9 rounded-full border border-white/5 bg-zinc-900/50 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100"
-              >
-                <Bell className="h-4 w-4" />
-                <span className="absolute right-2.5 top-2.5 h-1.5 w-1.5 rounded-full bg-violet-500 shadow-[0_0_10px_2px_rgba(139,92,246,0.6)] animate-pulse" />
-              </Button>
-            </div>
+            {/* Bell Notification Dropdown Component */}
+            <AdminNotifications 
+              initialNotifications={notifications || []} 
+              pgIds={pgIds} 
+            />
 
             {/* Avatar Pill */}
             <div className="flex cursor-pointer items-center gap-3 rounded-full border border-white/5 bg-zinc-900/50 py-1.5 pl-1.5 pr-4 transition-all hover:border-white/10 hover:bg-zinc-800">

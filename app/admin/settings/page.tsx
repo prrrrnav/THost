@@ -198,17 +198,20 @@
 
 
 // app/admin/settings/page.tsx
-import { Settings, Building2, Bell, Shield, Key, Save, BedDouble } from "lucide-react"
+import { Settings, Building2, Bell, Shield, Key, Save, BedDouble, SquarePen, Megaphone } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { redirect } from "next/navigation"
-import { getAdminSettings, updateAdminSettings, updateOccupancySettings } from "@/app/actions/settings"
+import { getAdminSettings, updateAdminSettings, updateOccupancySettings, addPgRule, updatePgRule, deletePgRule, sendPgNotice } from "@/app/actions/settings"
 import { Badge } from "@/components/ui/badge"
 
 import { createClient } from "@/lib/supabase/server"
+import { PgRulesManager } from "@/components/pg-rules-manager"
+
+export const dynamic = "force-dynamic"
 
 export default async function AdminSettingsPage() {
   const supabase = await createClient()
@@ -220,15 +223,22 @@ export default async function AdminSettingsPage() {
     redirect("/login")
   }
 
-  // Fetch PG details specifically for Occupancy Tab
+  // Fetch PG details
   const { data: pgDetails } = await supabase
     .from("pg_details")
     .select("*")
     .eq("owner_id", user.id)
 
+  // Fetch all rules for all PGs owned by this user
+  const pgIds = pgDetails?.map(pg => pg.id) || []
+  const { data: allRules } = await supabase
+    .from("property_rules")
+    .select("*")
+    .in("pg_id", pgIds)
+
   return (
     <div className="flex flex-col gap-8 pb-10">
-      {/* Page Header */}
+      {/* ... (Header) */}
       <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
         <div className="flex items-center gap-5">
           <div className="relative group">
@@ -314,32 +324,110 @@ export default async function AdminSettingsPage() {
           </TabsContent>
 
           <TabsContent value="notifications">
-            <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/50 backdrop-blur-xl shadow-2xl p-6 sm:p-8">
-              <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-500/50 to-transparent" />
-              <div className="mb-6">
-                <h3 className="text-lg font-bold text-zinc-100">Notification Preferences</h3>
-                <p className="text-sm text-zinc-400">Choose what you want to be notified about.</p>
+            <div className="flex flex-col gap-8">
+              {/* Refactored: PG Rules Section */}
+              <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/50 backdrop-blur-xl shadow-2xl p-6 sm:p-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
+                <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent" />
+                <div className="mb-6 flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                    <SquarePen className="h-5 w-5 text-emerald-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-zinc-100">PG Rules & Policies</h3>
+                    <p className="text-sm text-zinc-400">Add, edit, or remove specific rules for your properties.</p>
+                  </div>
+                </div>
+
+                <div className="grid gap-6">
+                  {pgDetails?.map((pg) => (
+                    <PgRulesManager 
+                      key={pg.id} 
+                      pgId={pg.id} 
+                      pgName={pg.name} 
+                      initialRules={allRules?.filter(r => r.pg_id === pg.id) || []} 
+                    />
+                  ))}
+                </div>
               </div>
 
-              <form action={updateAdminSettings} className="flex flex-col gap-4">
-                <div className="flex items-center justify-between rounded-xl border border-white/5 bg-black/20 p-4 hover:bg-black/40">
-                  <div className="flex flex-col">
-                    <span className="font-medium text-zinc-200">Rent Reminders</span>
-                    <span className="text-xs text-zinc-500">Automatically send reminders to tenants.</span>
+              {/* New: BroadCast Notice Section */}
+              <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/50 backdrop-blur-xl shadow-2xl p-6 sm:p-8 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-100">
+                <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-500/50 to-transparent" />
+                <div className="mb-6 flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 border border-amber-500/20">
+                    <Megaphone className="h-5 w-5 text-amber-400" />
                   </div>
-                  <Switch name="rentReminders" defaultChecked={settings.notification_settings?.rent_reminders} />
-                </div>
-                <div className="flex items-center justify-between rounded-xl border border-white/5 bg-black/20 p-4 hover:bg-black/40">
-                  <div className="flex flex-col">
-                    <span className="font-medium text-zinc-200">New Tenant Alerts</span>
-                    <span className="text-xs text-zinc-500">Get notified of new tenant creations.</span>
+                  <div>
+                    <h3 className="text-lg font-bold text-zinc-100">BroadCast Notice</h3>
+                    <p className="text-sm text-zinc-400">Send an immediate announcement to all tenants of a PG.</p>
                   </div>
-                  <Switch name="tenantAlerts" defaultChecked={settings.notification_settings?.new_tenant_alerts} />
                 </div>
-                <div className="flex justify-end mt-4">
-                  <Button type="submit" className="bg-violet-600 hover:bg-violet-500">Save Preferences</Button>
+
+                <form action={sendPgNotice} className="grid gap-4 rounded-xl border border-white/5 bg-black/20 p-5">
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="grid gap-2">
+                      <Label className="text-xs font-semibold uppercase tracking-wider text-zinc-500 uppercase">Target PG</Label>
+                      <select 
+                        name="pgId" 
+                        required
+                        className="h-11 w-full rounded-xl border border-white/10 bg-zinc-900/50 px-3 text-sm text-zinc-200 focus:outline-none focus:ring-1 focus:ring-amber-500/50"
+                      >
+                        <option value="">Select Property</option>
+                        {pgDetails?.map(pg => (
+                          <option key={pg.id} value={pg.id}>{pg.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="grid gap-2">
+                      <Label className="text-xs font-semibold uppercase tracking-wider text-zinc-500 uppercase">Notice Title</Label>
+                      <Input name="title" placeholder="e.g. Maintenance Update" required className="h-11 border-white/10 bg-zinc-900/50 text-zinc-100" />
+                    </div>
+                  </div>
+                  <div className="grid gap-2">
+                    <Label className="text-xs font-semibold uppercase tracking-wider text-zinc-500 uppercase">Message Body</Label>
+                    <textarea
+                      name="message"
+                      required
+                      placeholder="Write your notice here..."
+                      className="min-h-[100px] w-full rounded-xl border border-white/10 bg-zinc-900/50 p-4 text-sm text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-amber-500/50"
+                    />
+                  </div>
+                  <div className="flex justify-end">
+                    <Button type="submit" className="bg-amber-600 hover:bg-amber-500">
+                      Send to All Tenants
+                    </Button>
+                  </div>
+                </form>
+              </div>
+
+              {/* Original Settings */}
+              <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/50 backdrop-blur-xl shadow-2xl p-6 sm:p-8 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
+                <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-violet-500/50 to-transparent" />
+                <div className="mb-6">
+                  <h3 className="text-lg font-bold text-zinc-100">Notification Preferences</h3>
+                  <p className="text-sm text-zinc-400">Choose what you want to be notified about.</p>
                 </div>
-              </form>
+
+                <form action={updateAdminSettings} className="flex flex-col gap-4">
+                  <div className="flex items-center justify-between rounded-xl border border-white/5 bg-black/20 p-4 hover:bg-black/40">
+                    <div className="flex flex-col">
+                      <span className="font-medium text-zinc-200">Rent Reminders</span>
+                      <span className="text-xs text-zinc-500">Automatically send reminders to tenants.</span>
+                    </div>
+                    <Switch name="rentReminders" defaultChecked={settings.notification_settings?.rent_reminders} />
+                  </div>
+                  <div className="flex items-center justify-between rounded-xl border border-white/5 bg-black/20 p-4 hover:bg-black/40">
+                    <div className="flex flex-col">
+                      <span className="font-medium text-zinc-200">New Tenant Alerts</span>
+                      <span className="text-xs text-zinc-500">Get notified of new tenant creations.</span>
+                    </div>
+                    <Switch name="tenantAlerts" defaultChecked={settings.notification_settings?.new_tenant_alerts} />
+                  </div>
+                  <div className="flex justify-end mt-4">
+                    <Button type="submit" className="bg-violet-600 hover:bg-violet-500">Save Preferences</Button>
+                  </div>
+                </form>
+              </div>
             </div>
           </TabsContent>
           <TabsContent value="occupancy">

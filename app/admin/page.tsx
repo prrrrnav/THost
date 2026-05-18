@@ -273,8 +273,8 @@ export default async function AdminDashboard() {
               </div>
               <span className="text-[10px] text-white/25 uppercase tracking-widest font-medium">Needs attention</span>
             </div>
-            <p className="text-2xl font-bold text-white/90 tracking-tight">₹0</p>
-            <p className="text-xs text-white/35 mt-1">Overdue</p>
+            <p className="text-2xl font-bold text-white/90 tracking-tight">₹{stats.totalOutstanding?.toLocaleString() || 0}</p>
+            <p className="text-xs text-white/35 mt-1">Total Outstanding</p>
             <div className="pointer-events-none absolute bottom-0 right-0 h-16 w-16 rounded-full bg-amber-500/5 blur-xl" />
           </div>
         </div>

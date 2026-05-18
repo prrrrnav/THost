@@ -1,102 +1,3 @@
-// "use client"
-
-// import { useState } from "react"
-// import { updateTenant } from "@/app/actions/tenants"
-// import { Button } from "@/components/ui/button"
-// import {
-//   Dialog,
-//   DialogContent,
-//   DialogHeader,
-//   DialogTitle,
-//   DialogTrigger,
-// } from "@/components/ui/dialog"
-// import { Input } from "@/components/ui/input"
-// import { Label } from "@/components/ui/label"
-// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-// import { Pencil } from "lucide-react"
-
-// export function EditTenantDialog({ tenant }: { tenant: any }) {
-//   const [open, setOpen] = useState(false)
-//   // Store status in state to ensure it updates correctly
-//   const [status, setStatus] = useState(tenant.status || "Pending")
-
-//   return (
-//     <Dialog open={open} onOpenChange={setOpen}>
-//       <DialogTrigger asChild>
-//         <Button variant="ghost" size="icon" className="h-7 w-7 text-blue-600 hover:text-blue-700 hover:bg-blue-50">
-//           <Pencil className="h-3.5 w-3.5" />
-//         </Button>
-//       </DialogTrigger>
-//       <DialogContent className="sm:max-w-[425px]">
-//         <DialogHeader>
-//           <DialogTitle>Edit Tenant Details</DialogTitle>
-//         </DialogHeader>
-//         <form action={async (formData) => {
-//           await updateTenant(formData)
-//           setOpen(false)
-//         }} className="grid gap-4 py-4">
-
-//           <input type="hidden" name="id" value={tenant.id} />
-
-//           {/* 👇 HIDDEN INPUT TO FORCE STATUS UPDATE */}
-//           <input type="hidden" name="status" value={status} />
-
-//           <div className="grid gap-2">
-//             <Label htmlFor="name">Full Name</Label>
-//             <Input id="name" name="name" defaultValue={tenant.name} required />
-//           </div>
-
-//           <div className="grid gap-2">
-//             <Label htmlFor="room_number">Room Number</Label>
-//             <Input id="room_number" name="room_number" defaultValue={tenant.room_number} required />
-//           </div>
-
-//           <div className="grid grid-cols-2 gap-4">
-//             <div className="grid gap-2">
-//               <Label htmlFor="rent">Rent Amount</Label>
-//               <Input id="rent" name="rent" type="number" defaultValue={tenant.rent_amount} required />
-//             </div>
-//             <div className="grid gap-2">
-//               <Label htmlFor="due_date">Due Date</Label>
-//               <Input id="due_date" name="due_date" type="number" defaultValue={tenant.due_date} required />
-//             </div>
-//           </div>
-
-//           <div className="grid gap-2">
-//             <Label>Payment Status</Label>
-//             <Select 
-//               value={status} 
-//               onValueChange={setStatus} // Update state when user clicks
-//             >
-//               <SelectTrigger>
-//                 <SelectValue placeholder="Select status" />
-//               </SelectTrigger>
-//               <SelectContent>
-//                 <SelectItem value="Paid">Paid (Green)</SelectItem>
-//                 <SelectItem value="Pending">Pending (Yellow)</SelectItem>
-//                 <SelectItem value="Overdue">Overdue (Red)</SelectItem>
-//               </SelectContent>
-//             </Select>
-//           </div>
-
-//           <Button type="submit" className="mt-2 bg-[#1a73e8]">Save Changes</Button>
-//         </form>
-//       </DialogContent>
-//     </Dialog>
-//   )
-// }
-
-
-
-
-
-
-
-
-
-
-
-
 "use client"
 
 import { useState } from "react"
@@ -186,24 +87,26 @@ export function EditTenantDialog({ tenant, pgs = [] }: { tenant: any, pgs?: { id
             />
           </div>
 
-          <div className="grid gap-2">
-            <Label htmlFor="pg_id" className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-              PG Property
-            </Label>
-            <input type="hidden" name="pg_id" value={selectedPg} />
-            <Select value={selectedPg} onValueChange={setSelectedPg} required>
-              <SelectTrigger className="h-10 border-white/10 bg-zinc-900/50 text-zinc-100 placeholder:text-zinc-600 transition-all focus-visible:border-violet-500/50 focus-visible:bg-zinc-900 focus-visible:ring-1 focus-visible:ring-violet-500/50" id="pg_id">
-                <SelectValue placeholder="Select Property" />
-              </SelectTrigger>
-              <SelectContent className="border-white/10 bg-zinc-950 text-zinc-200">
-                {pgs.map((pg) => (
-                  <SelectItem key={pg.id} value={pg.id} className="cursor-pointer focus:bg-violet-500/20 focus:text-violet-300">
-                    {pg.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          {pgs.length > 1 && (
+            <div className="grid gap-2">
+              <Label htmlFor="pg_id" className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+                PG Property
+              </Label>
+              <Select value={selectedPg} onValueChange={setSelectedPg} required>
+                <SelectTrigger className="h-10 border-white/10 bg-zinc-900/50 text-zinc-100 placeholder:text-zinc-600 transition-all focus-visible:border-violet-500/50 focus-visible:bg-zinc-900 focus-visible:ring-1 focus-visible:ring-violet-500/50" id="pg_id">
+                  <SelectValue placeholder="Select Property" />
+                </SelectTrigger>
+                <SelectContent className="border-white/10 bg-zinc-950 text-zinc-200">
+                  {pgs.map((pg) => (
+                    <SelectItem key={pg.id} value={pg.id} className="cursor-pointer focus:bg-violet-500/20 focus:text-violet-300">
+                      {pg.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+          <input type="hidden" name="pg_id" value={selectedPg} />
 
           <div className="grid gap-2">
             <Label htmlFor="room_number" className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
@@ -235,6 +138,24 @@ export function EditTenantDialog({ tenant, pgs = [] }: { tenant: any, pgs?: { id
                 />
               </div>
             </div>
+
+            <div className="grid gap-2 col-span-2">
+              <Label htmlFor="payable_amount" className="text-xs font-semibold uppercase tracking-wider text-violet-400">
+                This Month's Payable Amount (Overrides Rent)
+              </Label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500">₹</span>
+                <Input
+                  id="payable_amount"
+                  name="payable_amount"
+                  type="number"
+                  defaultValue={tenant.rent_amount}
+                  className="h-10 border-violet-500/30 bg-violet-500/5 pl-7 text-zinc-100 placeholder:text-zinc-600 transition-all focus-visible:border-violet-500 focus-visible:bg-zinc-900 focus-visible:ring-1 focus-visible:ring-violet-500 shadow-[0_0_15px_-5px_rgba(139,92,246,0.3)]"
+                />
+              </div>
+              <p className="text-[10px] text-zinc-500">Change this if the tenant is paying a different amount this month (e.g. 0 or discounted).</p>
+            </div>
+
             <div className="grid gap-2">
               <Label htmlFor="due_date" className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
                 Due Date
@@ -276,6 +197,22 @@ export function EditTenantDialog({ tenant, pgs = [] }: { tenant: any, pgs?: { id
                 </SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="outstanding_amount" className="text-xs font-semibold uppercase tracking-wider text-emerald-400">
+              Total Outstanding Balance
+            </Label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500">₹</span>
+              <Input
+                id="outstanding_amount"
+                name="outstanding_amount"
+                type="number"
+                defaultValue={tenant.outstanding_amount || 0}
+                className="h-10 border-emerald-500/20 bg-emerald-500/5 pl-7 text-zinc-100 placeholder:text-zinc-600 transition-all focus-visible:border-emerald-500/50 focus-visible:bg-zinc-900 focus-visible:ring-1 focus-visible:ring-emerald-500/50"
+              />
+            </div>
           </div>
 
           {/* Glowing Submit Button */}
